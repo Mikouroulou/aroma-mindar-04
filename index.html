@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ARoma MindAR – Saumon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/three@0.136.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
+    <script src="https://unpkg.com/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+      }
+      #ar-container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ar-container"></div>
+    <script type="module">
+      import * as THREE from 'https://unpkg.com/three@0.136.0/build/three.module.js';
+      import { MindARThree } from 'https://unpkg.com/mind-ar@1.1.4/dist/mindar-image-three.prod.js';
+
+      const start = async () => {
+        const mindarThree = new MindARThree({
+          container: document.querySelector("#ar-container"),
+          imageTargetSrc: "./targets.mind",
+          maxTrack: 1,
+          filterMinCF: 0.001,
+          filterBeta: 0.01,
+          uiScanning: true,
+          uiLoading: "yes",
+          warmupTolerance: 10,
+          missTolerance: 5,
+          cameraConfig: {
+            facingMode: "environment"  // Use back camera
+          }
+        });
+
+        const { renderer, scene, camera } = mindarThree;
+        const anchor = mindarThree.addAnchor(0);
+
+        const gltfLoader = new THREE.GLTFLoader();
+        gltfLoader.load("saumon_v002_LOD0.glb", (gltf) => {
+          const model = gltf.scene;
+          model.scale.set(0.03, 0.03, 0.03); // Ajuster l'échelle si nécessaire
+          anchor.group.add(model);
+        });
+
+        await mindarThree.start();
+        renderer.setAnimationLoop(() => {
+          renderer.render(scene, camera);
+        });
+      };
+      start();
+    </script>
+  </body>
+</html>
